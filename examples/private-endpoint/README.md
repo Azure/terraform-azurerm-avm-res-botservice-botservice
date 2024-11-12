@@ -5,15 +5,15 @@ This deploys the module in its simplest form.
 
 ```hcl
 terraform {
-  required_version = "~> 1.5"
+  required_version = ">= 1.3.0"
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 3.74"
+      version = ">= 3.7.0, < 4.0.0"
     }
     random = {
       source  = "hashicorp/random"
-      version = "~> 3.5"
+      version = ">= 3.5.0, < 4.0.0"
     }
   }
 }
@@ -27,30 +27,43 @@ provider "azurerm" {
 }
 
 
-## Section to provide a random Azure region for the resource group
-# This allows us to randomize the region for the resource group.
-module "regions" {
-  source  = "Azure/avm-utl-regions/azurerm"
-  version = "~> 0.1"
-}
-
-# This allows us to randomize the region for the resource group.
-resource "random_integer" "region_index" {
-  max = length(module.regions.regions) - 1
-  min = 0
-}
-## End of section to provide a random Azure region for the resource group
-
 # This ensures we have unique CAF compliant names for our resources.
 module "naming" {
   source  = "Azure/naming/azurerm"
-  version = "~> 0.3"
+  version = ">= 0.3.0"
 }
 
 # This is required for resource modules
 resource "azurerm_resource_group" "this" {
-  location = "East US 2"
+  location = "EAST US 2"
   name     = "avm-res-bostservices-botservice-${module.naming.resource_group.name_unique}"
+}
+
+module "vnet" {
+  source  = "Azure/subnets/azurerm"
+  version = "1.0.0"
+
+  resource_group_name = azurerm_resource_group.this.name
+  subnets = {
+    botservice = {
+      address_prefixes = ["10.52.0.0/24"]
+    }
+  }
+  virtual_network_address_space = ["10.52.0.0/16"]
+  virtual_network_location      = azurerm_resource_group.this.location
+  virtual_network_name          = "vnet"
+}
+
+resource "azurerm_private_dns_zone" "zone" {
+  name                = "privatelink.botservice.azure.com"
+  resource_group_name = azurerm_resource_group.this.name
+}
+
+resource "azurerm_private_dns_zone_virtual_network_link" "link" {
+  name                  = "botservice-private-dns-zone"
+  private_dns_zone_name = azurerm_private_dns_zone.zone.name
+  resource_group_name   = azurerm_resource_group.this.name
+  virtual_network_id    = module.vnet.vnet_id
 }
 
 resource "random_pet" "pet" {}
@@ -61,14 +74,8 @@ resource "azurerm_user_assigned_identity" "this" {
   resource_group_name = azurerm_resource_group.this.name
 }
 
-# This is the module call
-# Do not specify location here due to the randomization above.
-# Leaving location as `null` will cause the module to use the resource group location
-# with a data source.
 module "test" {
-  source = "../../"
-  # source             = "Azure/avm-<res/ptn>-<name>/azurerm"
-  # ...
+  source                  = "../../"
   location                = "global"
   name                    = "AzureBot-${random_pet.pet.id}"
   resource_group_name     = azurerm_resource_group.this.name
@@ -78,6 +85,16 @@ module "test" {
   microsoft_app_tenant_id = azurerm_user_assigned_identity.this.tenant_id
   enable_telemetry        = var.enable_telemetry
   microsoft_app_type      = "UserAssignedMSI"
+  private_endpoints = {
+    pe_endpoint = {
+      name                            = "pe_endpoint"
+      private_dns_zone_resource_ids   = toset([azurerm_private_dns_zone.zone.id])
+      private_service_connection_name = "pe_endpoint_connection"
+      subnet_resource_id              = module.vnet.vnet_subnets_name_id["botservice"]
+      location                        = azurerm_resource_group.this.location
+    }
+
+  }
 }
 ```
 
@@ -86,19 +103,20 @@ module "test" {
 
 The following requirements are needed by this module:
 
-- <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (~> 1.5)
+- <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (>= 1.3.0)
 
-- <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (~> 3.74)
+- <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (>= 3.7.0, < 4.0.0)
 
-- <a name="requirement_random"></a> [random](#requirement\_random) (~> 3.5)
+- <a name="requirement_random"></a> [random](#requirement\_random) (>= 3.5.0, < 4.0.0)
 
 ## Resources
 
 The following resources are used by this module:
 
+- [azurerm_private_dns_zone.zone](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/private_dns_zone) (resource)
+- [azurerm_private_dns_zone_virtual_network_link.link](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/private_dns_zone_virtual_network_link) (resource)
 - [azurerm_resource_group.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group) (resource)
 - [azurerm_user_assigned_identity.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/user_assigned_identity) (resource)
-- [random_integer.region_index](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/integer) (resource)
 - [random_pet.pet](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/pet) (resource)
 
 <!-- markdownlint-disable MD013 -->
@@ -132,19 +150,19 @@ The following Modules are called:
 
 Source: Azure/naming/azurerm
 
-Version: ~> 0.3
-
-### <a name="module_regions"></a> [regions](#module\_regions)
-
-Source: Azure/avm-utl-regions/azurerm
-
-Version: ~> 0.1
+Version: >= 0.3.0
 
 ### <a name="module_test"></a> [test](#module\_test)
 
 Source: ../../
 
 Version:
+
+### <a name="module_vnet"></a> [vnet](#module\_vnet)
+
+Source: Azure/subnets/azurerm
+
+Version: 1.0.0
 
 <!-- markdownlint-disable-next-line MD041 -->
 ## Data Collection

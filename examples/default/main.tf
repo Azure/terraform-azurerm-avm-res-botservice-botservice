@@ -5,10 +5,6 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "~> 3.74"
     }
-    modtm = {
-      source  = "azure/modtm"
-      version = "~> 0.3"
-    }
     random = {
       source  = "hashicorp/random"
       version = "~> 3.5"
@@ -17,7 +13,11 @@ terraform {
 }
 
 provider "azurerm" {
-  features {}
+  features {
+    resource_group {
+      prevent_deletion_if_contains_resources = false
+    }
+  }
 }
 
 
@@ -43,8 +43,16 @@ module "naming" {
 
 # This is required for resource modules
 resource "azurerm_resource_group" "this" {
-  location = module.regions.regions[random_integer.region_index.result].name
-  name     = module.naming.resource_group.name_unique
+  location = "East US 2"
+  name     = "avm-res-bostservices-botservice-${module.naming.resource_group.name_unique}"
+}
+
+resource "random_pet" "pet" {}
+
+resource "azurerm_user_assigned_identity" "this" {
+  location            = azurerm_resource_group.this.location
+  name                = "uai-zjee-bot"
+  resource_group_name = azurerm_resource_group.this.name
 }
 
 # This is the module call
@@ -55,9 +63,13 @@ module "test" {
   source = "../../"
   # source             = "Azure/avm-<res/ptn>-<name>/azurerm"
   # ...
-  location            = azurerm_resource_group.this.location
-  name                = "TODO" # TODO update with module.naming.<RESOURCE_TYPE>.name_unique
-  resource_group_name = azurerm_resource_group.this.name
-
-  enable_telemetry = var.enable_telemetry # see variables.tf
+  location                = "global"
+  name                    = "AzureBot-${random_pet.pet.id}"
+  resource_group_name     = azurerm_resource_group.this.name
+  sku                     = "F0"
+  microsoft_app_id        = azurerm_user_assigned_identity.this.client_id
+  microsoft_app_msi_id    = azurerm_user_assigned_identity.this.id
+  microsoft_app_tenant_id = azurerm_user_assigned_identity.this.tenant_id
+  enable_telemetry        = var.enable_telemetry
+  microsoft_app_type      = "UserAssignedMSI"
 }

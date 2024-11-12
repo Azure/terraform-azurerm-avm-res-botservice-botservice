@@ -12,8 +12,8 @@ resource "azurerm_private_endpoint" "this_managed_dns_zone_groups" {
   private_service_connection {
     is_manual_connection           = false
     name                           = each.value.private_service_connection_name != null ? each.value.private_service_connection_name : "pse-${var.name}"
-    private_connection_resource_id = azurerm_resource_group.TODO.id # TODO: Replace this dummy resource azurerm_resource_group.TODO with your module resource
-    subresource_names              = ["TODO subresource name, see https://learn.microsoft.com/en-us/azure/private-link/private-endpoint-overview#private-link-resource"]
+    private_connection_resource_id = azurerm_bot_service_azure_bot.this.id
+    subresource_names              = ["Bot"]
   }
   dynamic "ip_configuration" {
     for_each = each.value.ip_configurations
@@ -21,8 +21,8 @@ resource "azurerm_private_endpoint" "this_managed_dns_zone_groups" {
     content {
       name               = ip_configuration.value.name
       private_ip_address = ip_configuration.value.private_ip_address
-      member_name        = "TODO subresource name"
-      subresource_name   = "TODO subresource name"
+      member_name        = "Bot"
+      subresource_name   = "Bot"
     }
   }
   dynamic "private_dns_zone_group" {
@@ -51,8 +51,8 @@ resource "azurerm_private_endpoint" "this_unmanaged_dns_zone_groups" {
   private_service_connection {
     is_manual_connection           = false
     name                           = each.value.private_service_connection_name != null ? each.value.private_service_connection_name : "pse-${var.name}"
-    private_connection_resource_id = azurerm_resource_group.TODO.id # TODO: Replace this dummy resource azurerm_resource_group.TODO with your module resource
-    subresource_names              = ["TODO subresource name, see https://learn.microsoft.com/en-us/azure/private-link/private-endpoint-overview#private-link-resource"]
+    private_connection_resource_id = azurerm_bot_service_azure_bot.this.id
+    subresource_names              = ["Bot"]
   }
   dynamic "ip_configuration" {
     for_each = each.value.ip_configurations
@@ -60,14 +60,26 @@ resource "azurerm_private_endpoint" "this_unmanaged_dns_zone_groups" {
     content {
       name               = ip_configuration.value.name
       private_ip_address = ip_configuration.value.private_ip_address
-      member_name        = "TODO subresource name"
-      subresource_name   = "TODO subresource name"
+      member_name        = "Bot"
+      subresource_name   = "Bot"
     }
   }
 
   lifecycle {
     ignore_changes = [private_dns_zone_group]
   }
+}
+
+locals {
+  private_endpoint_application_security_group_associations = { for assoc in flatten([
+    for pe_k, pe_v in var.private_endpoints : [
+      for asg_k, asg_v in pe_v.application_security_group_associations : {
+        asg_key         = asg_k
+        pe_key          = pe_k
+        asg_resource_id = asg_v
+      }
+    ]
+  ]) : "${assoc.pe_key}-${assoc.asg_key}" => assoc }
 }
 
 resource "azurerm_private_endpoint_application_security_group_association" "this" {

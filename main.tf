@@ -1,29 +1,32 @@
-# TODO: Replace this dummy resource azurerm_resource_group.TODO with your module resource
-resource "azurerm_resource_group" "TODO" {
-  location = var.location
-  name     = var.name # calling code must supply the name
-  tags     = var.tags
-}
 
-# required AVM resources interfaces
-resource "azurerm_management_lock" "this" {
-  count = var.lock != null ? 1 : 0
+resource "azurerm_bot_service_azure_bot" "this" {
+  location                              = var.location
+  microsoft_app_id                      = var.microsoft_app_id
+  name                                  = var.name
+  resource_group_name                   = var.resource_group_name
+  sku                                   = var.sku
+  developer_app_insights_api_key        = var.developer_app_insights_api_key
+  developer_app_insights_application_id = var.developer_app_insights_application_id
+  developer_app_insights_key            = var.developer_app_insights_key
+  display_name                          = var.display_name
+  endpoint                              = var.endpoint
+  icon_url                              = var.icon_url
+  local_authentication_enabled          = var.local_authentication_enabled
+  microsoft_app_msi_id                  = var.microsoft_app_msi_id
+  microsoft_app_tenant_id               = var.microsoft_app_tenant_id
+  microsoft_app_type                    = var.microsoft_app_type
+  public_network_access_enabled         = var.public_network_access_enabled
+  streaming_endpoint_enabled            = var.streaming_endpoint_enabled
+  tags                                  = var.tags
 
-  lock_level = var.lock.kind
-  name       = coalesce(var.lock.name, "lock-${var.lock.kind}")
-  scope      = azurerm_MY_RESOURCE.this.id # TODO: Replace with your azurerm resource name
-  notes      = var.lock.kind == "CanNotDelete" ? "Cannot delete the resource or its child resources." : "Cannot delete or modify the resource or its child resources."
-}
+  dynamic "timeouts" {
+    for_each = var.timeouts == null ? [] : [var.timeouts]
 
-resource "azurerm_role_assignment" "this" {
-  for_each = var.role_assignments
-
-  principal_id                           = each.value.principal_id
-  scope                                  = azurerm_resource_group.TODO.id # TODO: Replace this dummy resource azurerm_resource_group.TODO with your module resource
-  condition                              = each.value.condition
-  condition_version                      = each.value.condition_version
-  delegated_managed_identity_resource_id = each.value.delegated_managed_identity_resource_id
-  role_definition_id                     = strcontains(lower(each.value.role_definition_id_or_name), lower(local.role_definition_resource_substring)) ? each.value.role_definition_id_or_name : null
-  role_definition_name                   = strcontains(lower(each.value.role_definition_id_or_name), lower(local.role_definition_resource_substring)) ? null : each.value.role_definition_id_or_name
-  skip_service_principal_aad_check       = each.value.skip_service_principal_aad_check
+    content {
+      create = timeouts.value.create
+      delete = timeouts.value.delete
+      read   = timeouts.value.read
+      update = timeouts.value.update
+    }
+  }
 }
