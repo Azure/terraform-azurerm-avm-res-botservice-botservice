@@ -67,17 +67,18 @@ resource "azurerm_user_assigned_identity" "this" {
 # with a data source.
 module "test" {
   source = "../../"
+
   # source             = "Azure/avm-<res/ptn>-<name>/azurerm"
   # ...
   location                = "global"
+  microsoft_app_id        = azurerm_user_assigned_identity.this.client_id
   name                    = "AzureBot-${random_pet.pet.id}"
   resource_group_name     = azurerm_resource_group.this.name
-  sku                     = "F0"
-  microsoft_app_id        = azurerm_user_assigned_identity.this.client_id
+  enable_telemetry        = var.enable_telemetry
   microsoft_app_msi_id    = azurerm_user_assigned_identity.this.id
   microsoft_app_tenant_id = azurerm_user_assigned_identity.this.tenant_id
-  enable_telemetry        = var.enable_telemetry
   microsoft_app_type      = "UserAssignedMSI"
+  sku                     = "F0"
 }
 ```
 
