@@ -1,6 +1,6 @@
 locals {
   channel_bodies = {
-    for k, v in var.channels : k => jsonencode(merge({
+    for k, v in var.channels : k => merge({
       kind = coalesce(v.kind, var.kind)
       properties = merge(
         {
@@ -8,7 +8,7 @@ locals {
         },
         v.properties != null ? v.properties : {}
       )
-    }, v.sku != null ? { sku = { name = v.sku } } : {}))
+    }, v.sku != null ? { sku = { name = v.sku } } : {})
   }
 }
 

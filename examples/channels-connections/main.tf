@@ -34,6 +34,35 @@ resource "azurerm_user_assigned_identity" "uai" {
   resource_group_name = azurerm_resource_group.rg.name
 }
 
+resource "azurerm_virtual_network" "vnet" {
+  name                = "vnet-${random_pet.pet.id}"
+  address_space       = ["10.0.0.0/16"]
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+}
+
+resource "azurerm_subnet" "subnet" {
+  name                 = "subnet-${random_pet.pet.id}"
+  resource_group_name  = azurerm_resource_group.rg.name
+  virtual_network_name = azurerm_virtual_network.vnet.name
+  address_prefixes     = ["10.0.1.0/24"]
+}
+
+resource "azurerm_private_endpoint" "pe" {
+  name                = "pe-${random_pet.pet.id}"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  subnet_id           = azurerm_subnet.subnet.id
+
+  private_service_connection {
+    name                           = "pec1"
+    private_connection_resource_id = module.bot.resource_id
+    is_manual_connection           = false
+    subresource_names              = ["Bot"]
+    request_message                = null
+  }
+}
+
 resource "random_password" "conn_secret" {
   length  = 32
   special = true
@@ -50,19 +79,13 @@ module "bot" {
   microsoft_app_tenant_id = azurerm_user_assigned_identity.uai.tenant_id
   microsoft_app_type      = "UserAssignedMSI"
   endpoint                = "https://example.com/api/messages"
-  sku                     = "F0"
+  sku                     = "S1"
 
   channels = {
-    webchat = {
-      channel_name = "WebChatChannel"
+    msteams = {
+      channel_name = "MsTeamsChannel"
       properties = {
-        sites = [{
-          siteName                 = "site-${random_pet.pet.id}"
-          isEnabled                = true
-          isWebchatPreviewEnabled  = false
-          isWebChatSpeechEnabled   = false
-          isDetailedLoggingEnabled = false
-        }]
+        isEnabled = true
       }
     }
   }
@@ -74,29 +97,22 @@ module "bot" {
         clientSecret               = random_password.conn_secret.result
         name                       = "conn-${random_pet.pet.id}"
         serviceProviderDisplayName = "GitHub"
-        serviceProviderId          = "github"
+        serviceProviderId          = "d05eaacf-1593-4603-9c6c-d4d8fffa46cb"
         scopes                     = ""
         parameters = [
           {
-            key   = "Sample"
-            value = "Value"
+            key   = "clientId"
+            value = azurerm_user_assigned_identity.uai.client_id
+          },
+          {
+            key   = "clientSecret"
+            value = random_password.conn_secret.result
+          },
+          {
+            key   = "scopes"
+            value = ""
           }
         ]
-      }
-    }
-  }
-
-  network_security_perimeter_configurations = {
-    nsp1 = {}
-  }
-
-  private_endpoint_connections = {
-    pec1 = {
-      group_ids = ["Bot"]
-      private_link_service_connection_state = {
-        status           = "Approved"
-        description      = "Auto-approved for example"
-        actions_required = "None"
       }
     }
   }
