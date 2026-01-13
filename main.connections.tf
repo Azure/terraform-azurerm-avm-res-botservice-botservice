@@ -8,7 +8,10 @@ resource "azapi_resource" "connections" {
   body = merge({
     kind       = coalesce(each.value.kind, var.kind)
     properties = each.value.properties
-  }, each.value.sku != null ? { sku = { name = each.value.sku } } : {})
+    },
+    each.value.sku != null ? { sku = { name = each.value.sku } } : {},
+    each.value.etag != null ? { etag = each.value.etag } : {}
+  )
   create_headers            = var.enable_telemetry ? { "User-Agent" = local.avm_azapi_header } : null
   delete_headers            = var.enable_telemetry ? { "User-Agent" = local.avm_azapi_header } : null
   read_headers              = var.enable_telemetry ? { "User-Agent" = local.avm_azapi_header } : null

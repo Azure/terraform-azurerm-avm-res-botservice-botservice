@@ -22,10 +22,24 @@ variable "resource_group_name" {
   nullable    = false
 }
 
+variable "all_settings" {
+  type        = map(any)
+  default     = {}
+  description = "(Optional) Contains resource settings defined as key/value pairs."
+  nullable    = false
+}
+
+variable "app_password_hint" {
+  type        = string
+  default     = null
+  description = "(Optional) Hint (e.g. Key Vault secret resourceId) to fetch the app secret."
+}
+
 variable "channels" {
   type = map(object({
     name         = optional(string, null)
     channel_name = string
+    etag         = optional(string, null)
     properties   = optional(any, null)
     location     = optional(string, null)
     tags         = optional(map(string), null)
@@ -37,9 +51,16 @@ variable "channels" {
   nullable    = false
 }
 
+variable "cmek_key_vault_url" {
+  type        = string
+  default     = null
+  description = "(Optional) The CMK Key Vault URL (cmekKeyVaultUrl)."
+}
+
 variable "connections" {
   type = map(object({
     name       = optional(string, null)
+    etag       = optional(string, null)
     properties = any
     location   = optional(string, null)
     tags       = optional(map(string), null)
@@ -49,6 +70,12 @@ variable "connections" {
   default     = {}
   description = "(Optional) Map of Bot service connections to create. Key is arbitrary, value includes properties and optional name/location/tags/sku/kind."
   nullable    = false
+}
+
+variable "description" {
+  type        = string
+  default     = null
+  description = "(Optional) The description of the bot."
 }
 
 variable "developer_app_insights_api_key" {
@@ -137,11 +164,23 @@ variable "endpoint" {
   description = "(Optional) The endpoint of the Azure Bot Service."
 }
 
+variable "etag" {
+  type        = string
+  default     = null
+  description = "(Optional) Resource ETag for concurrency control."
+}
+
 variable "icon_url" {
   type        = string
   default     = "https://docs.botframework.com/static/devportal/client/images/bot-framework-default.png"
   description = "(Optional) The URL of the icon to use for the Azure Bot Service. Defaults to `https://docs.botframework.com/static/devportal/client/images/bot-framework-default.png`"
   nullable    = false
+}
+
+variable "is_cmek_enabled" {
+  type        = bool
+  default     = null
+  description = "(Optional) Whether CMK encryption is enabled (isCmekEnabled)."
 }
 
 variable "kind" {
@@ -180,6 +219,25 @@ variable "lock" {
   }
 }
 
+variable "luis_app_ids" {
+  type        = list(string)
+  default     = []
+  description = "(Optional) Collection of LUIS App IDs (luisAppIds)."
+  nullable    = false
+}
+
+variable "luis_key" {
+  type        = string
+  default     = null
+  description = "(Optional) The LUIS authoring/starter key (luisKey)."
+}
+
+variable "manifest_url" {
+  type        = string
+  default     = null
+  description = "(Optional) The bot's manifest URL (manifestUrl)."
+}
+
 variable "microsoft_app_msi_id" {
   type        = string
   default     = null
@@ -209,6 +267,19 @@ variable "network_security_perimeter_configurations" {
   }))
   default     = {}
   description = "(Optional) Map of network security perimeter configurations to create. Key is arbitrary, name defaults to key."
+  nullable    = false
+}
+
+variable "open_with_hint" {
+  type        = string
+  default     = null
+  description = "(Optional) Hint to browser on how to open the bot for authoring (openWithHint)."
+}
+
+variable "parameters" {
+  type        = map(any)
+  default     = {}
+  description = "(Optional) Contains resource parameters defined as key/value pairs."
   nullable    = false
 }
 
@@ -313,6 +384,12 @@ variable "public_network_access_enabled" {
   description = "(Optional) Whether public network access is allowed for the Azure Bot Service. Defaults to `true`."
 }
 
+variable "publishing_credentials" {
+  type        = string
+  default     = null
+  description = "(Optional) Publishing credentials of the resource (publishingCredentials)."
+}
+
 variable "role_assignments" {
   type = map(object({
     role_definition_id_or_name             = string
@@ -342,6 +419,12 @@ variable "role_assignments" {
   nullable    = false
 }
 
+variable "schema_transformation_version" {
+  type        = string
+  default     = null
+  description = "(Optional) The channel schema transformation version (schemaTransformationVersion)."
+}
+
 variable "schema_validation_enabled" {
   type        = bool
   default     = false
@@ -361,6 +444,12 @@ variable "sku" {
   }
 }
 
+variable "storage_resource_id" {
+  type        = string
+  default     = null
+  description = "(Optional) The storage resource ID for the bot (storageResourceId)."
+}
+
 variable "streaming_endpoint_enabled" {
   type        = bool
   default     = null
@@ -371,6 +460,12 @@ variable "tags" {
   type        = map(string)
   default     = null
   description = "(Optional) A mapping of tags to assign to the resource."
+}
+
+variable "tenant_id" {
+  type        = string
+  default     = null
+  description = "(Optional) The Tenant ID for the bot resource (tenantId)."
 }
 
 variable "timeouts" {
