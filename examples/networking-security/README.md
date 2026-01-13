@@ -6,6 +6,8 @@ This example demonstrates ALL networking and security options for Azure Bot Serv
 
 ```hcl
 terraform {
+  required_version = "~> 1.5"
+
   required_providers {
     azapi = {
       source  = "Azure/azapi"
@@ -199,6 +201,8 @@ module "bot_with_nsp" {
 ## Requirements
 
 The following requirements are needed by this module:
+
+- <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (~> 1.5)
 
 - <a name="requirement_azapi"></a> [azapi](#requirement\_azapi) (~> 2.8)
 

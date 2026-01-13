@@ -6,6 +6,8 @@ This deploys the module in its simplest form.
 
 ```hcl
 terraform {
+  required_version = "~> 1.5"
+
   required_providers {
     azapi = {
       source  = "Azure/azapi"
@@ -48,6 +50,7 @@ module "bot" {
   microsoft_app_id          = azurerm_user_assigned_identity.uai.client_id
   name                      = "bot-${random_pet.pet.id}"
   resource_group_name       = azurerm_resource_group.rg.name
+  enable_telemetry          = var.enable_telemetry
   endpoint                  = "https://example.com/api/messages"
   microsoft_app_msi_id      = azurerm_user_assigned_identity.uai.id
   microsoft_app_tenant_id   = azurerm_user_assigned_identity.uai.tenant_id
@@ -61,6 +64,8 @@ module "bot" {
 ## Requirements
 
 The following requirements are needed by this module:
+
+- <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (~> 1.5)
 
 - <a name="requirement_azapi"></a> [azapi](#requirement\_azapi) (~> 2.8)
 
