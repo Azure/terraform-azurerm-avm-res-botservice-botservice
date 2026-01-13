@@ -30,7 +30,11 @@ The following requirements are needed by this module:
 
 The following resources are used by this module:
 
-- [azurerm_bot_service_azure_bot.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/bot_service_azure_bot) (resource)
+- [azapi_resource.channels](https://registry.terraform.io/providers/Azure/azapi/latest/docs/resources/resource) (resource)
+- [azapi_resource.connections](https://registry.terraform.io/providers/Azure/azapi/latest/docs/resources/resource) (resource)
+- [azapi_resource.network_security_perimeter_configurations](https://registry.terraform.io/providers/Azure/azapi/latest/docs/resources/resource) (resource)
+- [azapi_resource.private_endpoint_connections](https://registry.terraform.io/providers/Azure/azapi/latest/docs/resources/resource) (resource)
+- [azapi_resource.this](https://registry.terraform.io/providers/Azure/azapi/latest/docs/resources/resource) (resource)
 - [azurerm_management_lock.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/management_lock) (resource)
 - [azurerm_monitor_diagnostic_setting.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_diagnostic_setting) (resource)
 - [azurerm_private_endpoint.this_managed_dns_zone_groups](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/private_endpoint) (resource)
@@ -40,6 +44,7 @@ The following resources are used by this module:
 - [modtm_telemetry.telemetry](https://registry.terraform.io/providers/azure/modtm/latest/docs/resources/telemetry) (resource)
 - [random_uuid.telemetry](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/uuid) (resource)
 - [azapi_client_config.telemetry](https://registry.terraform.io/providers/Azure/azapi/latest/docs/data-sources/client_config) (data source)
+- [azapi_client_config.this](https://registry.terraform.io/providers/Azure/azapi/latest/docs/data-sources/client_config) (data source)
 - [modtm_module_source.telemetry](https://registry.terraform.io/providers/azure/modtm/latest/docs/data-sources/module_source) (data source)
 
 <!-- markdownlint-disable MD013 -->
@@ -74,6 +79,45 @@ Type: `string`
 ## Optional Inputs
 
 The following input variables are optional (have default values):
+
+### <a name="input_channels"></a> [channels](#input\_channels)
+
+Description: (Optional) Map of Bot channels to create. Key is arbitrary, value includes channel\_name and optional properties/location/tags/sku/kind.
+
+Type:
+
+```hcl
+map(object({
+    name         = optional(string, null)
+    channel_name = string
+    properties   = optional(any, null)
+    location     = optional(string, null)
+    tags         = optional(map(string), null)
+    sku          = optional(string, null)
+    kind         = optional(string, null)
+  }))
+```
+
+Default: `{}`
+
+### <a name="input_connections"></a> [connections](#input\_connections)
+
+Description: (Optional) Map of Bot service connections to create. Key is arbitrary, value includes properties and optional name/location/tags/sku/kind.
+
+Type:
+
+```hcl
+map(object({
+    name       = optional(string, null)
+    properties = any
+    location   = optional(string, null)
+    tags       = optional(map(string), null)
+    sku        = optional(string, null)
+    kind       = optional(string, null)
+  }))
+```
+
+Default: `{}`
 
 ### <a name="input_developer_app_insights_api_key"></a> [developer\_app\_insights\_api\_key](#input\_developer\_app\_insights\_api\_key)
 
@@ -167,6 +211,14 @@ Type: `string`
 
 Default: `"https://docs.botframework.com/static/devportal/client/images/bot-framework-default.png"`
 
+### <a name="input_kind"></a> [kind](#input\_kind)
+
+Description: (Optional) The kind of the bot resource. Allowed values: azurebot, bot, designer, function, sdk. Defaults to azurebot.
+
+Type: `string`
+
+Default: `"azurebot"`
+
 ### <a name="input_local_authentication_enabled"></a> [local\_authentication\_enabled](#input\_local\_authentication\_enabled)
 
 Description: (Optional) Whether local authentication methods is enabled for the Azure Bot Service. Defaults to `true`.
@@ -216,6 +268,41 @@ Description: (Optional) The Microsoft App Type for this Azure Bot Service. Possi
 Type: `string`
 
 Default: `"MultiTenant"`
+
+### <a name="input_network_security_perimeter_configurations"></a> [network\_security\_perimeter\_configurations](#input\_network\_security\_perimeter\_configurations)
+
+Description: (Optional) Map of network security perimeter configurations to create. Key is arbitrary, name defaults to key.
+
+Type:
+
+```hcl
+map(object({
+    name = optional(string, null)
+  }))
+```
+
+Default: `{}`
+
+### <a name="input_private_endpoint_connections"></a> [private\_endpoint\_connections](#input\_private\_endpoint\_connections)
+
+Description: (Optional) Map of private endpoint connections to manage.
+
+Type:
+
+```hcl
+map(object({
+    name             = optional(string, null)
+    group_ids        = optional(list(string), [])
+    private_endpoint = optional(any, null)
+    private_link_service_connection_state = object({
+      status           = string
+      description      = optional(string, null)
+      actions_required = optional(string, null)
+    })
+  }))
+```
+
+Default: `{}`
 
 ### <a name="input_private_endpoints"></a> [private\_endpoints](#input\_private\_endpoints)
 
@@ -282,6 +369,14 @@ Type: `bool`
 
 Default: `true`
 
+### <a name="input_public_network_access"></a> [public\_network\_access](#input\_public\_network\_access)
+
+Description: (Optional) Public network access mode for the Bot Service: Enabled, Disabled, SecuredByPerimeter. Overrides public\_network\_access\_enabled when set.
+
+Type: `string`
+
+Default: `null`
+
 ### <a name="input_public_network_access_enabled"></a> [public\_network\_access\_enabled](#input\_public\_network\_access\_enabled)
 
 Description: (Optional) Whether public network access is allowed for the Azure Bot Service. Defaults to `true`.
@@ -321,6 +416,14 @@ map(object({
 ```
 
 Default: `{}`
+
+### <a name="input_schema_validation_enabled"></a> [schema\_validation\_enabled](#input\_schema\_validation\_enabled)
+
+Description: Whether to enable azapi resource schema validation. Defaults to false for preview API versions.
+
+Type: `bool`
+
+Default: `false`
 
 ### <a name="input_sku"></a> [sku](#input\_sku)
 

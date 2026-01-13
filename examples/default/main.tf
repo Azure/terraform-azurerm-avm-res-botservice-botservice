@@ -1,77 +1,51 @@
 terraform {
-  required_version = "~> 1.5"
-
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 3.74"
+      version = "~> 4.57"
+    }
+    azapi = {
+      source  = "Azure/azapi"
+      version = "~> 2.8"
     }
     random = {
       source  = "hashicorp/random"
-      version = "~> 3.5"
+      version = "~> 3.7"
     }
   }
 }
 
 provider "azurerm" {
-  features {
-    resource_group {
-      prevent_deletion_if_contains_resources = false
-    }
-  }
+  features {}
 }
 
-
-## Section to provide a random Azure region for the resource group
-# This allows us to randomize the region for the resource group.
-module "regions" {
-  source  = "Azure/avm-utl-regions/azurerm"
-  version = "~> 0.1"
-}
-
-# This allows us to randomize the region for the resource group.
-resource "random_integer" "region_index" {
-  max = length(module.regions.regions) - 1
-  min = 0
-}
-## End of section to provide a random Azure region for the resource group
-
-# This ensures we have unique CAF compliant names for our resources.
-module "naming" {
-  source  = "Azure/naming/azurerm"
-  version = "~> 0.3"
-}
-
-# This is required for resource modules
-resource "azurerm_resource_group" "this" {
-  location = "East US 2"
-  name     = "avm-res-bostservices-botservice-${module.naming.resource_group.name_unique}"
-}
+provider "azapi" {}
 
 resource "random_pet" "pet" {}
 
-resource "azurerm_user_assigned_identity" "this" {
-  location            = azurerm_resource_group.this.location
-  name                = "uai-zjee-bot"
-  resource_group_name = azurerm_resource_group.this.name
+resource "azurerm_resource_group" "rg" {
+  name     = "rg-${random_pet.pet.id}"
+  location = "eastus2"
 }
 
-# This is the module call
-# Do not specify location here due to the randomization above.
-# Leaving location as `null` will cause the module to use the resource group location
-# with a data source.
-module "test" {
+resource "azurerm_user_assigned_identity" "uai" {
+  name                = "uai-${random_pet.pet.id}"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+}
+
+module "bot" {
   source = "../../"
 
-  # source             = "Azure/avm-<res/ptn>-<name>/azurerm"
-  # ...
   location                = "global"
-  microsoft_app_id        = azurerm_user_assigned_identity.this.client_id
-  name                    = "AzureBot-${random_pet.pet.id}"
-  resource_group_name     = azurerm_resource_group.this.name
-  enable_telemetry        = var.enable_telemetry
-  microsoft_app_msi_id    = azurerm_user_assigned_identity.this.id
-  microsoft_app_tenant_id = azurerm_user_assigned_identity.this.tenant_id
+  resource_group_name     = azurerm_resource_group.rg.name
+  name                    = "bot-${random_pet.pet.id}"
+  microsoft_app_id        = azurerm_user_assigned_identity.uai.client_id
+  microsoft_app_msi_id    = azurerm_user_assigned_identity.uai.id
+  microsoft_app_tenant_id = azurerm_user_assigned_identity.uai.tenant_id
   microsoft_app_type      = "UserAssignedMSI"
+  endpoint                = "https://example.com/api/messages"
   sku                     = "F0"
+
+  schema_validation_enabled = false
 }

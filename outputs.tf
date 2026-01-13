@@ -1,6 +1,6 @@
 output "name" {
   description = "The name of Azure Bot Service created."
-  value       = azurerm_bot_service_azure_bot.this.name
+  value       = azapi_resource.this.name
 }
 
 output "private_endpoints" {
@@ -12,5 +12,5 @@ output "private_endpoints" {
 
 output "resource_id" {
   description = "The resource ID of Azure Bot Service created."
-  value       = azurerm_bot_service_azure_bot.this.id
+  value       = azapi_resource.this.id
 }

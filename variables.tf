@@ -22,6 +22,35 @@ variable "resource_group_name" {
   nullable    = false
 }
 
+variable "channels" {
+  type = map(object({
+    name         = optional(string, null)
+    channel_name = string
+    properties   = optional(any, null)
+    location     = optional(string, null)
+    tags         = optional(map(string), null)
+    sku          = optional(string, null)
+    kind         = optional(string, null)
+  }))
+  default     = {}
+  description = "(Optional) Map of Bot channels to create. Key is arbitrary, value includes channel_name and optional properties/location/tags/sku/kind."
+  nullable    = false
+}
+
+variable "connections" {
+  type = map(object({
+    name       = optional(string, null)
+    properties = any
+    location   = optional(string, null)
+    tags       = optional(map(string), null)
+    sku        = optional(string, null)
+    kind       = optional(string, null)
+  }))
+  default     = {}
+  description = "(Optional) Map of Bot service connections to create. Key is arbitrary, value includes properties and optional name/location/tags/sku/kind."
+  nullable    = false
+}
+
 variable "developer_app_insights_api_key" {
   type        = string
   default     = null
@@ -115,6 +144,17 @@ variable "icon_url" {
   nullable    = false
 }
 
+variable "kind" {
+  type        = string
+  default     = "azurebot"
+  description = "(Optional) The kind of the bot resource. Allowed values: azurebot, bot, designer, function, sdk. Defaults to azurebot."
+
+  validation {
+    condition     = contains(["azurebot", "bot", "designer", "function", "sdk"], lower(var.kind))
+    error_message = "Kind must be one of: azurebot, bot, designer, function, sdk."
+  }
+}
+
 variable "local_authentication_enabled" {
   type        = bool
   default     = null
@@ -163,6 +203,38 @@ variable "microsoft_app_type" {
   }
 }
 
+variable "network_security_perimeter_configurations" {
+  type = map(object({
+    name = optional(string, null)
+  }))
+  default     = {}
+  description = "(Optional) Map of network security perimeter configurations to create. Key is arbitrary, name defaults to key."
+  nullable    = false
+}
+
+variable "private_endpoint_connections" {
+  type = map(object({
+    name             = optional(string, null)
+    group_ids        = optional(list(string), [])
+    private_endpoint = optional(any, null)
+    private_link_service_connection_state = object({
+      status           = string
+      description      = optional(string, null)
+      actions_required = optional(string, null)
+    })
+  }))
+  default     = {}
+  description = "(Optional) Map of private endpoint connections to manage."
+  nullable    = false
+
+  validation {
+    condition = alltrue([
+      for v in var.private_endpoint_connections : contains(["Approved", "Pending", "Rejected"], v.private_link_service_connection_state.status)
+    ])
+    error_message = "private_endpoint_connections.*.private_link_service_connection_state.status must be Approved, Pending, or Rejected."
+  }
+}
+
 variable "private_endpoints" {
   type = map(object({
     name = optional(string, null)
@@ -197,7 +269,7 @@ variable "private_endpoints" {
   default     = {}
   description = <<DESCRIPTION
   A map of private endpoints to create on the Azure Bot Service.
-  
+
   - `name` - (Optional) The name of the private endpoint. One will be generated if not set.
   - `role_assignments` - (Optional) A map of role assignments to create on the private endpoint. The map key is deliberately arbitrary to avoid issues where map keys maybe unknown at plan time. See `var.role_assignments` for more information.
   - `lock` - (Optional) The lock level to apply to the private endpoint. Default is `None`. Possible values are `None`, `CanNotDelete`, and `ReadOnly`.
@@ -224,6 +296,17 @@ variable "private_endpoints_manage_dns_zone_group" {
   nullable    = false
 }
 
+variable "public_network_access" {
+  type        = string
+  default     = null
+  description = "(Optional) Public network access mode for the Bot Service: Enabled, Disabled, SecuredByPerimeter. Overrides public_network_access_enabled when set."
+
+  validation {
+    condition     = var.public_network_access == null ? true : contains(["Enabled", "Disabled", "SecuredByPerimeter"], var.public_network_access)
+    error_message = "public_network_access must be one of: Enabled, Disabled, SecuredByPerimeter."
+  }
+}
+
 variable "public_network_access_enabled" {
   type        = bool
   default     = null
@@ -244,7 +327,7 @@ variable "role_assignments" {
   default     = {}
   description = <<DESCRIPTION
   A map of role assignments to create on the <RESOURCE>. The map key is deliberately arbitrary to avoid issues where map keys maybe unknown at plan time.
-  
+
   - `role_definition_id_or_name` - The ID or name of the role definition to assign to the principal.
   - `principal_id` - The ID of the principal to assign the role to.
   - `description` - (Optional) The description of the role assignment.
@@ -253,9 +336,16 @@ variable "role_assignments" {
   - `condition_version` - (Optional) The version of the condition syntax. Leave as `null` if you are not using a condition, if you are then valid values are '2.0'.
   - `delegated_managed_identity_resource_id` - (Optional) The delegated Azure Resource Id which contains a Managed Identity. Changing this forces a new resource to be created. This field is only used in cross-tenant scenario.
   - `principal_type` - (Optional) The type of the `principal_id`. Possible values are `User`, `Group` and `ServicePrincipal`. It is necessary to explicitly set this attribute when creating role assignments if the principal creating the assignment is constrained by ABAC rules that filters on the PrincipalType attribute.
-  
+
   > Note: only set `skip_service_principal_aad_check` to true if you are assigning a role to a service principal.
   DESCRIPTION
+  nullable    = false
+}
+
+variable "schema_validation_enabled" {
+  type        = bool
+  default     = false
+  description = "Whether to enable azapi resource schema validation. Defaults to false for preview API versions."
   nullable    = false
 }
 

@@ -9,6 +9,10 @@ terraform {
   required_version = "~> 1.5"
 
   required_providers {
+    azapi = {
+      source  = "Azure/azapi"
+      version = "~> 2.4"
+    }
     azurerm = {
       source  = "hashicorp/azurerm"
       version = "~> 3.74"
@@ -26,6 +30,10 @@ provider "azurerm" {
       prevent_deletion_if_contains_resources = false
     }
   }
+}
+
+provider "azapi" {
+  skip_provider_registration = false
 }
 
 
@@ -77,6 +85,7 @@ module "test" {
   name                    = "AzureBot-${random_pet.pet.id}"
   resource_group_name     = azurerm_resource_group.this.name
   enable_telemetry        = var.enable_telemetry
+  endpoint                = "https://example.com/api/messages"
   microsoft_app_msi_id    = azurerm_user_assigned_identity.this.id
   microsoft_app_tenant_id = azurerm_user_assigned_identity.this.tenant_id
   microsoft_app_type      = "UserAssignedMSI"
@@ -90,6 +99,8 @@ module "test" {
 The following requirements are needed by this module:
 
 - <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (~> 1.5)
+
+- <a name="requirement_azapi"></a> [azapi](#requirement\_azapi) (~> 2.4)
 
 - <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (~> 3.74)
 
