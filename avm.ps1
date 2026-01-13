@@ -42,9 +42,10 @@ else {
 # Check if AZURE_CONFIG_DIR exists, if it does, mount it to the container
 $AZURE_CONFIG_MOUNT = $null
 $AZURE_CONFIG_MOUNT_PATH = $null
+  $AZURE_CONFIG_CONTAINER_PATH = if ($IsWindows) { "/root/.azure" } else { "/home/runtimeuser/.azure" }
 if (Test-Path $AZURE_CONFIG_DIR) {
   $AZURE_CONFIG_MOUNT = "-v"
-  $AZURE_CONFIG_MOUNT_PATH = "${AZURE_CONFIG_DIR}:/home/runtimeuser/.azure"
+  $AZURE_CONFIG_MOUNT_PATH = "${AZURE_CONFIG_DIR}:${AZURE_CONFIG_CONTAINER_PATH}"
 }
 
 # New: allow overriding TUI behavior with PORCH_FORCE_TUI and PORCH_NO_TUI environment variables.
@@ -133,6 +134,7 @@ if (-not $env:AVM_IN_CONTAINER) {
     "AVM_PORCH_STDOUT",
     "TEST_TYPE",
     "TFLINT_CONFIG_URL"
+    "AZURE_CONFIG_DIR"
   )
 
   foreach ($envVar in $envVars) {
@@ -143,6 +145,9 @@ if (-not $env:AVM_IN_CONTAINER) {
   }
 
   # Add TF_IN_AUTOMATION
+  if ($AZURE_CONFIG_CONTAINER_PATH) {
+    $dockerArgs += @("-e", "AZURE_CONFIG_DIR=$AZURE_CONFIG_CONTAINER_PATH")
+  }
   $dockerArgs += @("-e", "TF_IN_AUTOMATION=1")
 
   # Add TF_VAR_ environment variables
