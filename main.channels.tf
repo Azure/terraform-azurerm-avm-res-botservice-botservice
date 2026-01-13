@@ -1,3 +1,17 @@
+locals {
+  channel_bodies = {
+    for k, v in var.channels : k => jsonencode(merge({
+      kind = coalesce(v.kind, var.kind)
+      properties = merge(
+        {
+          channelName = v.channel_name
+        },
+        v.properties != null ? v.properties : {}
+      )
+    }, v.sku != null ? { sku = { name = v.sku } } : {}))
+  }
+}
+
 resource "azapi_resource" "channels" {
   for_each = var.channels
 
@@ -5,15 +19,7 @@ resource "azapi_resource" "channels" {
   name      = coalesce(each.value.name, each.value.channel_name)
   parent_id = azapi_resource.this.id
   type      = "Microsoft.BotService/botServices/channels@2023-09-15-preview"
-  body = merge({
-    kind = coalesce(each.value.kind, var.kind)
-    properties = merge(
-      {
-        channelName = each.value.channel_name
-      },
-      each.value.properties != null ? each.value.properties : {}
-    )
-  }, each.value.sku != null ? { sku = { name = each.value.sku } } : {})
+  body      = local.channel_bodies[each.key]
   create_headers            = var.enable_telemetry ? { "User-Agent" = local.avm_azapi_header } : null
   delete_headers            = var.enable_telemetry ? { "User-Agent" = local.avm_azapi_header } : null
   read_headers              = var.enable_telemetry ? { "User-Agent" = local.avm_azapi_header } : null
