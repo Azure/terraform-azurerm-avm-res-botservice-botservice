@@ -18,7 +18,11 @@ terraform {
 }
 
 provider "azurerm" {
-  features {}
+  features {
+    resource_group {
+      prevent_deletion_if_contains_resources = false
+    }
+  }
 }
 
 provider "azapi" {}
@@ -30,9 +34,27 @@ resource "azurerm_resource_group" "rg" {
   name     = "rg-${random_pet.pet.id}"
 }
 
-resource "azurerm_user_assigned_identity" "uai" {
+resource "azurerm_user_assigned_identity" "uai_module_pe" {
   location            = azurerm_resource_group.rg.location
-  name                = "uai-${random_pet.pet.id}"
+  name                = "uai-module-pe-${random_pet.pet.id}"
+  resource_group_name = azurerm_resource_group.rg.name
+}
+
+resource "azurerm_user_assigned_identity" "uai_manual_pe" {
+  location            = azurerm_resource_group.rg.location
+  name                = "uai-manual-pe-${random_pet.pet.id}"
+  resource_group_name = azurerm_resource_group.rg.name
+}
+
+resource "azurerm_user_assigned_identity" "uai_approval" {
+  location            = azurerm_resource_group.rg.location
+  name                = "uai-approval-${random_pet.pet.id}"
+  resource_group_name = azurerm_resource_group.rg.name
+}
+
+resource "azurerm_user_assigned_identity" "uai_nsp" {
+  location            = azurerm_resource_group.rg.location
+  name                = "uai-nsp-${random_pet.pet.id}"
   resource_group_name = azurerm_resource_group.rg.name
 }
 
@@ -69,16 +91,17 @@ module "bot_with_module_pe" {
   source = "../../"
 
   location                = "global"
-  microsoft_app_id        = azurerm_user_assigned_identity.uai.client_id
+  microsoft_app_id        = azurerm_user_assigned_identity.uai_module_pe.client_id
   name                    = "bot-module-pe-${random_pet.pet.id}"
   resource_group_name     = azurerm_resource_group.rg.name
   endpoint                = "https://example.com/api/messages"
-  microsoft_app_msi_id    = azurerm_user_assigned_identity.uai.id
-  microsoft_app_tenant_id = azurerm_user_assigned_identity.uai.tenant_id
+  microsoft_app_msi_id    = azurerm_user_assigned_identity.uai_module_pe.id
+  microsoft_app_tenant_id = azurerm_user_assigned_identity.uai_module_pe.tenant_id
   microsoft_app_type      = "UserAssignedMSI"
   # Option 1: Module-managed private endpoint (uses azurerm_private_endpoint)
   private_endpoints = {
     primary = {
+      location                      = azurerm_resource_group.rg.location
       subnet_resource_id            = azurerm_subnet.subnet.id
       private_dns_zone_resource_ids = [azurerm_private_dns_zone.bot.id]
       private_dns_zone_group_name   = "bot-dns-zone-group"
@@ -91,6 +114,11 @@ module "bot_with_module_pe" {
   public_network_access_enabled = false
   schema_validation_enabled     = false
   sku                           = "S1"
+  timeouts = {
+    create = "60m"
+    update = "60m"
+    delete = "60m"
+  }
 }
 
 # Bot Service for demonstrating manual private endpoint (created outside module)
@@ -98,16 +126,21 @@ module "bot_with_manual_pe" {
   source = "../../"
 
   location                      = "global"
-  microsoft_app_id              = azurerm_user_assigned_identity.uai.client_id
+  microsoft_app_id              = azurerm_user_assigned_identity.uai_manual_pe.client_id
   name                          = "bot-manual-pe-${random_pet.pet.id}"
   resource_group_name           = azurerm_resource_group.rg.name
   endpoint                      = "https://example.com/api/messages"
-  microsoft_app_msi_id          = azurerm_user_assigned_identity.uai.id
-  microsoft_app_tenant_id       = azurerm_user_assigned_identity.uai.tenant_id
+  microsoft_app_msi_id          = azurerm_user_assigned_identity.uai_manual_pe.id
+  microsoft_app_tenant_id       = azurerm_user_assigned_identity.uai_manual_pe.tenant_id
   microsoft_app_type            = "UserAssignedMSI"
   public_network_access_enabled = false
   schema_validation_enabled     = false
   sku                           = "S1"
+  timeouts = {
+    create = "60m"
+    update = "60m"
+    delete = "60m"
+  }
 }
 
 # Option 2: Manually created private endpoint (outside module)
@@ -134,16 +167,21 @@ module "bot_with_approval" {
   source = "../../"
 
   location                      = "global"
-  microsoft_app_id              = azurerm_user_assigned_identity.uai.client_id
+  microsoft_app_id              = azurerm_user_assigned_identity.uai_approval.client_id
   name                          = "bot-approval-${random_pet.pet.id}"
   resource_group_name           = azurerm_resource_group.rg.name
   endpoint                      = "https://example.com/api/messages"
-  microsoft_app_msi_id          = azurerm_user_assigned_identity.uai.id
-  microsoft_app_tenant_id       = azurerm_user_assigned_identity.uai.tenant_id
+  microsoft_app_msi_id          = azurerm_user_assigned_identity.uai_approval.id
+  microsoft_app_tenant_id       = azurerm_user_assigned_identity.uai_approval.tenant_id
   microsoft_app_type            = "UserAssignedMSI"
   public_network_access_enabled = true
   schema_validation_enabled     = false
   sku                           = "S1"
+  timeouts = {
+    create = "60m"
+    update = "60m"
+    delete = "60m"
+  }
 }
 
 # External private endpoint requesting manual approval
@@ -172,17 +210,22 @@ module "bot_with_nsp" {
   source = "../../"
 
   location                = "global"
-  microsoft_app_id        = azurerm_user_assigned_identity.uai.client_id
+  microsoft_app_id        = azurerm_user_assigned_identity.uai_nsp.client_id
   name                    = "bot-nsp-${random_pet.pet.id}"
   resource_group_name     = azurerm_resource_group.rg.name
   endpoint                = "https://example.com/api/messages"
-  microsoft_app_msi_id    = azurerm_user_assigned_identity.uai.id
-  microsoft_app_tenant_id = azurerm_user_assigned_identity.uai.tenant_id
+  microsoft_app_msi_id    = azurerm_user_assigned_identity.uai_nsp.id
+  microsoft_app_tenant_id = azurerm_user_assigned_identity.uai_nsp.tenant_id
   microsoft_app_type      = "UserAssignedMSI"
   # Use SecuredByPerimeter for NSP scenarios
   public_network_access     = "SecuredByPerimeter"
   schema_validation_enabled = false
   sku                       = "S1"
+  timeouts = {
+    create = "60m"
+    update = "60m"
+    delete = "60m"
+  }
 }
 
 
