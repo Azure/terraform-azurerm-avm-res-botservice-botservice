@@ -18,19 +18,23 @@ The following requirements are needed by this module:
 
 - <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (~> 1.5)
 
-- <a name="requirement_azapi"></a> [azapi](#requirement\_azapi) (~> 2.4)
+- <a name="requirement_azapi"></a> [azapi](#requirement\_azapi) (~> 2.8)
 
-- <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (~> 3.71)
+- <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (~> 4.57)
 
 - <a name="requirement_modtm"></a> [modtm](#requirement\_modtm) (~> 0.3)
 
-- <a name="requirement_random"></a> [random](#requirement\_random) (~> 3.5)
+- <a name="requirement_random"></a> [random](#requirement\_random) (~> 3.7)
 
 ## Resources
 
 The following resources are used by this module:
 
-- [azurerm_bot_service_azure_bot.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/bot_service_azure_bot) (resource)
+- [azapi_resource.channels](https://registry.terraform.io/providers/Azure/azapi/latest/docs/resources/resource) (resource)
+- [azapi_resource.connections](https://registry.terraform.io/providers/Azure/azapi/latest/docs/resources/resource) (resource)
+- [azapi_resource.network_security_perimeter_configurations](https://registry.terraform.io/providers/Azure/azapi/latest/docs/resources/resource) (resource)
+- [azapi_resource.private_endpoint_connections](https://registry.terraform.io/providers/Azure/azapi/latest/docs/resources/resource) (resource)
+- [azapi_resource.this](https://registry.terraform.io/providers/Azure/azapi/latest/docs/resources/resource) (resource)
 - [azurerm_management_lock.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/management_lock) (resource)
 - [azurerm_monitor_diagnostic_setting.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_diagnostic_setting) (resource)
 - [azurerm_private_endpoint.this_managed_dns_zone_groups](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/private_endpoint) (resource)
@@ -40,6 +44,7 @@ The following resources are used by this module:
 - [modtm_telemetry.telemetry](https://registry.terraform.io/providers/azure/modtm/latest/docs/resources/telemetry) (resource)
 - [random_uuid.telemetry](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/uuid) (resource)
 - [azapi_client_config.telemetry](https://registry.terraform.io/providers/Azure/azapi/latest/docs/data-sources/client_config) (data source)
+- [azapi_client_config.this](https://registry.terraform.io/providers/Azure/azapi/latest/docs/data-sources/client_config) (data source)
 - [modtm_module_source.telemetry](https://registry.terraform.io/providers/azure/modtm/latest/docs/data-sources/module_source) (data source)
 
 <!-- markdownlint-disable MD013 -->
@@ -74,6 +79,79 @@ Type: `string`
 ## Optional Inputs
 
 The following input variables are optional (have default values):
+
+### <a name="input_all_settings"></a> [all\_settings](#input\_all\_settings)
+
+Description: (Optional) Contains resource settings defined as key/value pairs.
+
+Type: `map(any)`
+
+Default: `{}`
+
+### <a name="input_app_password_hint"></a> [app\_password\_hint](#input\_app\_password\_hint)
+
+Description: (Optional) Hint (e.g. Key Vault secret resourceId) to fetch the app secret.
+
+Type: `string`
+
+Default: `null`
+
+### <a name="input_channels"></a> [channels](#input\_channels)
+
+Description: (Optional) Map of Bot channels to create. Key is arbitrary, value includes channel\_name and optional properties/location/tags/sku/kind.
+
+Type:
+
+```hcl
+map(object({
+    name         = optional(string, null)
+    channel_name = string
+    etag         = optional(string, null)
+    properties   = optional(any, null)
+    location     = optional(string, null)
+    tags         = optional(map(string), null)
+    sku          = optional(string, null)
+    kind         = optional(string, null)
+  }))
+```
+
+Default: `{}`
+
+### <a name="input_cmek_key_vault_url"></a> [cmek\_key\_vault\_url](#input\_cmek\_key\_vault\_url)
+
+Description: (Optional) The CMK Key Vault URL (cmekKeyVaultUrl).
+
+Type: `string`
+
+Default: `null`
+
+### <a name="input_connections"></a> [connections](#input\_connections)
+
+Description: (Optional) Map of Bot service connections to create. Key is arbitrary, value includes properties and optional name/location/tags/sku/kind.
+
+Type:
+
+```hcl
+map(object({
+    name       = optional(string, null)
+    etag       = optional(string, null)
+    properties = any
+    location   = optional(string, null)
+    tags       = optional(map(string), null)
+    sku        = optional(string, null)
+    kind       = optional(string, null)
+  }))
+```
+
+Default: `{}`
+
+### <a name="input_description"></a> [description](#input\_description)
+
+Description: (Optional) The description of the bot.
+
+Type: `string`
+
+Default: `null`
 
 ### <a name="input_developer_app_insights_api_key"></a> [developer\_app\_insights\_api\_key](#input\_developer\_app\_insights\_api\_key)
 
@@ -159,6 +237,14 @@ Type: `string`
 
 Default: `null`
 
+### <a name="input_etag"></a> [etag](#input\_etag)
+
+Description: (Optional) Resource ETag for concurrency control.
+
+Type: `string`
+
+Default: `null`
+
 ### <a name="input_icon_url"></a> [icon\_url](#input\_icon\_url)
 
 Description: (Optional) The URL of the icon to use for the Azure Bot Service. Defaults to `https://docs.botframework.com/static/devportal/client/images/bot-framework-default.png`
@@ -166,6 +252,22 @@ Description: (Optional) The URL of the icon to use for the Azure Bot Service. De
 Type: `string`
 
 Default: `"https://docs.botframework.com/static/devportal/client/images/bot-framework-default.png"`
+
+### <a name="input_is_cmek_enabled"></a> [is\_cmek\_enabled](#input\_is\_cmek\_enabled)
+
+Description: (Optional) Whether CMK encryption is enabled (isCmekEnabled).
+
+Type: `bool`
+
+Default: `null`
+
+### <a name="input_kind"></a> [kind](#input\_kind)
+
+Description: (Optional) The kind of the bot resource. Allowed values: azurebot, bot, designer, function, sdk. Defaults to azurebot.
+
+Type: `string`
+
+Default: `"azurebot"`
 
 ### <a name="input_local_authentication_enabled"></a> [local\_authentication\_enabled](#input\_local\_authentication\_enabled)
 
@@ -193,6 +295,30 @@ object({
 
 Default: `null`
 
+### <a name="input_luis_app_ids"></a> [luis\_app\_ids](#input\_luis\_app\_ids)
+
+Description: (Optional) Collection of LUIS App IDs (luisAppIds).
+
+Type: `list(string)`
+
+Default: `[]`
+
+### <a name="input_luis_key"></a> [luis\_key](#input\_luis\_key)
+
+Description: (Optional) The LUIS authoring/starter key (luisKey).
+
+Type: `string`
+
+Default: `null`
+
+### <a name="input_manifest_url"></a> [manifest\_url](#input\_manifest\_url)
+
+Description: (Optional) The bot's manifest URL (manifestUrl).
+
+Type: `string`
+
+Default: `null`
+
 ### <a name="input_microsoft_app_msi_id"></a> [microsoft\_app\_msi\_id](#input\_microsoft\_app\_msi\_id)
 
 Description: (Optional) The ID of the Microsoft App Managed Identity for this Azure Bot Service.
@@ -216,6 +342,57 @@ Description: (Optional) The Microsoft App Type for this Azure Bot Service. Possi
 Type: `string`
 
 Default: `"MultiTenant"`
+
+### <a name="input_network_security_perimeter_configurations"></a> [network\_security\_perimeter\_configurations](#input\_network\_security\_perimeter\_configurations)
+
+Description: (Optional) Map of network security perimeter configurations to create. Key is arbitrary, name defaults to key.
+
+Type:
+
+```hcl
+map(object({
+    name = optional(string, null)
+  }))
+```
+
+Default: `{}`
+
+### <a name="input_open_with_hint"></a> [open\_with\_hint](#input\_open\_with\_hint)
+
+Description: (Optional) Hint to browser on how to open the bot for authoring (openWithHint).
+
+Type: `string`
+
+Default: `null`
+
+### <a name="input_parameters"></a> [parameters](#input\_parameters)
+
+Description: (Optional) Contains resource parameters defined as key/value pairs.
+
+Type: `map(any)`
+
+Default: `{}`
+
+### <a name="input_private_endpoint_connections"></a> [private\_endpoint\_connections](#input\_private\_endpoint\_connections)
+
+Description: (Optional) Map of private endpoint connections to manage.
+
+Type:
+
+```hcl
+map(object({
+    name             = optional(string, null)
+    group_ids        = optional(list(string), [])
+    private_endpoint = optional(any, null)
+    private_link_service_connection_state = object({
+      status           = string
+      description      = optional(string, null)
+      actions_required = optional(string, null)
+    })
+  }))
+```
+
+Default: `{}`
 
 ### <a name="input_private_endpoints"></a> [private\_endpoints](#input\_private\_endpoints)
 
@@ -282,11 +459,27 @@ Type: `bool`
 
 Default: `true`
 
+### <a name="input_public_network_access"></a> [public\_network\_access](#input\_public\_network\_access)
+
+Description: (Optional) Public network access mode for the Bot Service: Enabled, Disabled, SecuredByPerimeter. Overrides public\_network\_access\_enabled when set.
+
+Type: `string`
+
+Default: `null`
+
 ### <a name="input_public_network_access_enabled"></a> [public\_network\_access\_enabled](#input\_public\_network\_access\_enabled)
 
 Description: (Optional) Whether public network access is allowed for the Azure Bot Service. Defaults to `true`.
 
 Type: `bool`
+
+Default: `null`
+
+### <a name="input_publishing_credentials"></a> [publishing\_credentials](#input\_publishing\_credentials)
+
+Description: (Optional) Publishing credentials of the resource (publishingCredentials).
+
+Type: `string`
 
 Default: `null`
 
@@ -322,6 +515,22 @@ map(object({
 
 Default: `{}`
 
+### <a name="input_schema_transformation_version"></a> [schema\_transformation\_version](#input\_schema\_transformation\_version)
+
+Description: (Optional) The channel schema transformation version (schemaTransformationVersion).
+
+Type: `string`
+
+Default: `null`
+
+### <a name="input_schema_validation_enabled"></a> [schema\_validation\_enabled](#input\_schema\_validation\_enabled)
+
+Description: Whether to enable azapi resource schema validation. Defaults to false for preview API versions.
+
+Type: `bool`
+
+Default: `false`
+
 ### <a name="input_sku"></a> [sku](#input\_sku)
 
 Description: (Required) Specifies the SKU of the Azure Bot Service. Possible values are `F0`,`S1`.
@@ -329,6 +538,14 @@ Description: (Required) Specifies the SKU of the Azure Bot Service. Possible val
 Type: `string`
 
 Default: `"F0"`
+
+### <a name="input_storage_resource_id"></a> [storage\_resource\_id](#input\_storage\_resource\_id)
+
+Description: (Optional) The storage resource ID for the bot (storageResourceId).
+
+Type: `string`
+
+Default: `null`
 
 ### <a name="input_streaming_endpoint_enabled"></a> [streaming\_endpoint\_enabled](#input\_streaming\_endpoint\_enabled)
 
@@ -343,6 +560,14 @@ Default: `null`
 Description: (Optional) A mapping of tags to assign to the resource.
 
 Type: `map(string)`
+
+Default: `null`
+
+### <a name="input_tenant_id"></a> [tenant\_id](#input\_tenant\_id)
+
+Description: (Optional) The Tenant ID for the bot resource (tenantId).
+
+Type: `string`
 
 Default: `null`
 
