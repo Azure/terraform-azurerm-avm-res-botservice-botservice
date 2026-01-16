@@ -1,9 +1,9 @@
 resource "azapi_resource" "diagnostic_settings" {
   for_each = var.diagnostic_settings
 
-  type      = "Microsoft.Insights/diagnosticSettings@2021-05-01-preview"
   name      = coalesce(each.value.name, "diag-${var.name}")
   parent_id = azapi_resource.this.id
+  type      = "Microsoft.Insights/diagnosticSettings@2021-05-01-preview"
   body = {
     properties = merge(
       each.value.event_hub_authorization_rule_resource_id != null ? { eventHubAuthorizationRuleId = each.value.event_hub_authorization_rule_resource_id } : {},
@@ -32,6 +32,10 @@ resource "azapi_resource" "diagnostic_settings" {
       } : {}
     )
   }
-  schema_validation_enabled = false
+  create_headers            = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
+  delete_headers            = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
   ignore_missing_property   = true
+  read_headers              = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
+  schema_validation_enabled = false
+  update_headers            = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
 }

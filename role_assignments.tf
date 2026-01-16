@@ -1,17 +1,17 @@
 locals {
-  role_definition_resource_substring = "Bot Services"
   # Generate role assignment IDs
   role_assignment_ids = {
     for k, v in var.role_assignments : k => uuidv5("url", "${azapi_resource.this.id}/${v.principal_id}/${v.role_definition_id_or_name}")
   }
+  role_definition_resource_substring = "Bot Services"
 }
 
 resource "azapi_resource" "role_assignments" {
   for_each = var.role_assignments
 
-  type      = "Microsoft.Authorization/roleAssignments@2022-04-01"
   name      = local.role_assignment_ids[each.key]
   parent_id = azapi_resource.this.id
+  type      = "Microsoft.Authorization/roleAssignments@2022-04-01"
   body = {
     properties = merge(
       {
@@ -28,6 +28,10 @@ resource "azapi_resource" "role_assignments" {
       each.value.principal_type != null ? { principalType = each.value.principal_type } : {}
     )
   }
-  schema_validation_enabled = false
+  create_headers            = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
+  delete_headers            = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
   ignore_missing_property   = true
+  read_headers              = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
+  schema_validation_enabled = false
+  update_headers            = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
 }

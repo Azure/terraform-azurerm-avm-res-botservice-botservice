@@ -2,11 +2,10 @@
 resource "azapi_resource" "private_endpoint_managed_dns" {
   for_each = var.private_endpoints
 
-  type      = "Microsoft.Network/privateEndpoints@2023-11-01"
   location  = each.value.location != null ? each.value.location : var.location
   name      = each.value.name != null ? each.value.name : "pe-${var.name}"
   parent_id = "/subscriptions/${data.azapi_client_config.this.subscription_id}/resourceGroups/${each.value.resource_group_name != null ? each.value.resource_group_name : var.resource_group_name}"
-  tags      = each.value.tags
+  type      = "Microsoft.Network/privateEndpoints@2023-11-01"
   body = {
     properties = merge(
       {
@@ -49,8 +48,13 @@ resource "azapi_resource" "private_endpoint_managed_dns" {
       } : {}
     )
   }
-  schema_validation_enabled = false
+  create_headers            = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
+  delete_headers            = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
   ignore_missing_property   = true
+  read_headers              = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
+  schema_validation_enabled = false
+  tags                      = each.value.tags
+  update_headers            = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
 }
 
 # The PE resource when we are managing **not** the private_dns_zone_group block
@@ -59,11 +63,10 @@ resource "azapi_resource" "private_endpoint_managed_dns" {
 resource "azapi_resource" "private_endpoint_unmanaged_dns" {
   for_each = { for k, v in var.private_endpoints : k => v if !var.private_endpoints_manage_dns_zone_group }
 
-  type      = "Microsoft.Network/privateEndpoints@2023-11-01"
   location  = each.value.location != null ? each.value.location : var.location
   name      = each.value.name != null ? each.value.name : "pe-${var.name}"
   parent_id = "/subscriptions/${data.azapi_client_config.this.subscription_id}/resourceGroups/${each.value.resource_group_name != null ? each.value.resource_group_name : var.resource_group_name}"
-  tags      = each.value.tags
+  type      = "Microsoft.Network/privateEndpoints@2023-11-01"
   body = {
     properties = merge(
       {
@@ -93,8 +96,14 @@ resource "azapi_resource" "private_endpoint_unmanaged_dns" {
       } : {}
     )
   }
-  schema_validation_enabled = false
+  create_headers            = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
+  delete_headers            = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
   ignore_missing_property   = true
+  read_headers              = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
+  schema_validation_enabled = false
+  tags                      = each.value.tags
+  update_headers            = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
+
   lifecycle {
     ignore_changes = [body.properties.privateDnsZoneGroups]
   }
@@ -115,8 +124,8 @@ locals {
 resource "azapi_update_resource" "private_endpoint_asg_association" {
   for_each = local.private_endpoint_application_security_group_associations
 
-  type        = "Microsoft.Network/privateEndpoints@2023-11-01"
   resource_id = var.private_endpoints_manage_dns_zone_group ? azapi_resource.private_endpoint_managed_dns[each.value.pe_key].id : azapi_resource.private_endpoint_unmanaged_dns[each.value.pe_key].id
+  type        = "Microsoft.Network/privateEndpoints@2023-11-01"
   body = {
     properties = {
       applicationSecurityGroups = [{
@@ -124,4 +133,6 @@ resource "azapi_update_resource" "private_endpoint_asg_association" {
       }]
     }
   }
+  read_headers   = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
+  update_headers = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
 }
