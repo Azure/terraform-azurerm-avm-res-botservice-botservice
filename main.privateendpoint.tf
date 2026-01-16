@@ -1,6 +1,6 @@
 # TODO remove this code & var.private_endpoints if private link is not support.  Note it must be included in this module if it is supported.
 resource "azapi_resource" "private_endpoint_managed_dns" {
-  for_each = var.private_endpoints
+  for_each = { for k, v in var.private_endpoints : k => v if var.private_endpoints_manage_dns_zone_group }
 
   location  = each.value.location != null ? each.value.location : var.location
   name      = each.value.name != null ? each.value.name : "pe-${var.name}"
