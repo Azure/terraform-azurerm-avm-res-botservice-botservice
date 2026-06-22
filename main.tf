@@ -1,6 +1,5 @@
 data "azapi_client_config" "this" {}
 
-
 resource "azapi_resource" "this" {
   location  = var.location
   name      = var.name
