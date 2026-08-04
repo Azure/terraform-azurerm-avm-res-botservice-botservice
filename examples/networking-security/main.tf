@@ -8,7 +8,7 @@ terraform {
     }
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 5.0"
+      version = ">= 4.57, < 6.0"
     }
     random = {
       source  = "hashicorp/random"
@@ -228,4 +228,3 @@ module "bot_with_nsp" {
     delete = "60m"
   }
 }
-

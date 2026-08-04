@@ -15,7 +15,7 @@ terraform {
     }
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 5.0"
+      version = ">= 4.57, < 6.0"
     }
     random = {
       source  = "hashicorp/random"
@@ -235,7 +235,6 @@ module "bot_with_nsp" {
     delete = "60m"
   }
 }
-
 ```
 
 <!-- markdownlint-disable MD033 -->
@@ -247,7 +246,7 @@ The following requirements are needed by this module:
 
 - <a name="requirement_azapi"></a> [azapi](#requirement\_azapi) (~> 2.7)
 
-- <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (~> 5.0)
+- <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (>= 4.57, < 6.0)
 
 - <a name="requirement_random"></a> [random](#requirement\_random) (~> 3.7)
 
