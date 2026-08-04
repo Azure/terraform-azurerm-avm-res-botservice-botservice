@@ -15,7 +15,7 @@ terraform {
     }
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 4.57"
+      version = "~> 5.0"
     }
     random = {
       source  = "hashicorp/random"
@@ -25,6 +25,8 @@ terraform {
 }
 
 provider "azurerm" {
+  resource_providers_to_register = ["Microsoft.BotService", "Microsoft.ManagedIdentity", "Microsoft.Network"]
+
   features {
     resource_group {
       prevent_deletion_if_contains_resources = false
@@ -87,10 +89,9 @@ resource "azurerm_private_dns_zone" "bot" {
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "bot" {
-  name                  = "vnet-link-${random_pet.pet.id}"
-  private_dns_zone_name = azurerm_private_dns_zone.bot.name
-  resource_group_name   = azurerm_resource_group.rg.name
-  virtual_network_id    = azurerm_virtual_network.vnet.id
+  name                = "vnet-link-${random_pet.pet.id}"
+  private_dns_zone_id = azurerm_private_dns_zone.bot.id
+  virtual_network_id  = azurerm_virtual_network.vnet.id
 }
 
 # Bot Service with Module-Managed Private Endpoint
@@ -235,9 +236,6 @@ module "bot_with_nsp" {
   }
 }
 
-
-
-
 ```
 
 <!-- markdownlint-disable MD033 -->
@@ -249,7 +247,7 @@ The following requirements are needed by this module:
 
 - <a name="requirement_azapi"></a> [azapi](#requirement\_azapi) (~> 2.7)
 
-- <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (~> 4.57)
+- <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (~> 5.0)
 
 - <a name="requirement_random"></a> [random](#requirement\_random) (~> 3.7)
 
