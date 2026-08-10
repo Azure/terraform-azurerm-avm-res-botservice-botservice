@@ -15,7 +15,7 @@ terraform {
     }
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 4.57"
+      version = ">= 4.57, < 6.0"
     }
     random = {
       source  = "hashicorp/random"
@@ -25,6 +25,8 @@ terraform {
 }
 
 provider "azurerm" {
+  resource_providers_to_register = ["Microsoft.BotService", "Microsoft.ManagedIdentity", "Microsoft.Network"]
+
   features {
     resource_group {
       prevent_deletion_if_contains_resources = false
@@ -140,7 +142,7 @@ The following requirements are needed by this module:
 
 - <a name="requirement_azapi"></a> [azapi](#requirement\_azapi) (~> 2.7)
 
-- <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (~> 4.57)
+- <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (>= 4.57, < 6.0)
 
 - <a name="requirement_random"></a> [random](#requirement\_random) (~> 3.7)
 

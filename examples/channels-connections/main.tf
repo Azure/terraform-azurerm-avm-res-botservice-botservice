@@ -8,7 +8,7 @@ terraform {
     }
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 4.57"
+      version = ">= 4.57, < 6.0"
     }
     random = {
       source  = "hashicorp/random"
@@ -18,6 +18,8 @@ terraform {
 }
 
 provider "azurerm" {
+  resource_providers_to_register = ["Microsoft.BotService", "Microsoft.ManagedIdentity", "Microsoft.Network"]
+
   features {
     resource_group {
       prevent_deletion_if_contains_resources = false
