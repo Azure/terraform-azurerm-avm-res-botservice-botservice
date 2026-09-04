@@ -22,10 +22,6 @@ resource "azapi_resource" "private_endpoint_connections" {
       each.value.private_endpoint != null ? { privateEndpoint = each.value.private_endpoint } : {}
     )
   }
-  create_headers            = var.enable_telemetry ? { "User-Agent" = local.avm_azapi_header } : null
-  delete_headers            = var.enable_telemetry ? { "User-Agent" = local.avm_azapi_header } : null
-  read_headers              = var.enable_telemetry ? { "User-Agent" = local.avm_azapi_header } : null
   response_export_values    = ["id", "name", "type", "properties"]
   schema_validation_enabled = var.schema_validation_enabled
-  update_headers            = var.enable_telemetry ? { "User-Agent" = local.avm_azapi_header } : null
 }
