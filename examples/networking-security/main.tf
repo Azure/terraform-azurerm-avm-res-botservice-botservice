@@ -69,10 +69,10 @@ resource "azurerm_virtual_network" "vnet" {
 }
 
 resource "azurerm_subnet" "subnet" {
-  address_prefixes     = ["10.0.1.0/24"]
   name                 = "subnet-${random_pet.pet.id}"
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnet.name
+  address_prefixes     = ["10.0.1.0/24"]
 }
 
 # Private DNS Zone for Private Endpoint
@@ -83,8 +83,8 @@ resource "azurerm_private_dns_zone" "bot" {
 
 resource "azurerm_private_dns_zone_virtual_network_link" "bot" {
   name                = "vnet-link-${random_pet.pet.id}"
-  private_dns_zone_id = azurerm_private_dns_zone.bot.id
   virtual_network_id  = azurerm_virtual_network.vnet.id
+  private_dns_zone_id = azurerm_private_dns_zone.bot.id
 }
 
 # Bot Service with Module-Managed Private Endpoint
@@ -157,6 +157,7 @@ resource "azurerm_private_endpoint" "manual" {
     private_connection_resource_id = module.bot_with_manual_pe.resource_id
     subresource_names              = ["Bot"]
   }
+
   private_dns_zone_group {
     name                 = "manual-dns-zone-group"
     private_dns_zone_ids = [azurerm_private_dns_zone.bot.id]

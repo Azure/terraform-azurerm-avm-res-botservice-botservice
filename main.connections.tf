@@ -12,11 +12,7 @@ resource "azapi_resource" "connections" {
     each.value.sku != null ? { sku = { name = each.value.sku } } : {},
     each.value.etag != null ? { etag = each.value.etag } : {}
   )
-  create_headers            = var.enable_telemetry ? { "User-Agent" = local.avm_azapi_header } : null
-  delete_headers            = var.enable_telemetry ? { "User-Agent" = local.avm_azapi_header } : null
-  read_headers              = var.enable_telemetry ? { "User-Agent" = local.avm_azapi_header } : null
   response_export_values    = ["id", "name", "type", "properties", "sku"]
   schema_validation_enabled = var.schema_validation_enabled
   tags                      = each.value.tags
-  update_headers            = var.enable_telemetry ? { "User-Agent" = local.avm_azapi_header } : null
 }

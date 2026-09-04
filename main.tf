@@ -44,14 +44,10 @@ resource "azapi_resource" "this" {
       name = var.sku
     }
   }, var.etag != null ? { etag = var.etag } : {})
-  create_headers            = var.enable_telemetry ? { "User-Agent" = local.avm_azapi_header } : null
-  delete_headers            = var.enable_telemetry ? { "User-Agent" = local.avm_azapi_header } : null
   ignore_missing_property   = true
-  read_headers              = var.enable_telemetry ? { "User-Agent" = local.avm_azapi_header } : null
   response_export_values    = ["id", "name", "type", "properties", "sku"]
   schema_validation_enabled = var.schema_validation_enabled
   tags                      = var.tags
-  update_headers            = var.enable_telemetry ? { "User-Agent" = local.avm_azapi_header } : null
 
   dynamic "timeouts" {
     for_each = var.timeouts == null ? [] : [var.timeouts]

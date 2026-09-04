@@ -48,13 +48,9 @@ resource "azapi_resource" "private_endpoint_managed_dns" {
       } : {}
     )
   }
-  create_headers            = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
-  delete_headers            = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
   ignore_missing_property   = true
-  read_headers              = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
   schema_validation_enabled = false
   tags                      = each.value.tags
-  update_headers            = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
 }
 
 # The PE resource when we are managing **not** the private_dns_zone_group block
@@ -96,13 +92,9 @@ resource "azapi_resource" "private_endpoint_unmanaged_dns" {
       } : {}
     )
   }
-  create_headers            = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
-  delete_headers            = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
   ignore_missing_property   = true
-  read_headers              = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
   schema_validation_enabled = false
   tags                      = each.value.tags
-  update_headers            = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
 
   lifecycle {
     ignore_changes = [body.properties.privateDnsZoneGroups]
@@ -133,6 +125,4 @@ resource "azapi_update_resource" "private_endpoint_asg_association" {
       }]
     }
   }
-  read_headers   = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
-  update_headers = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
 }
