@@ -68,7 +68,17 @@ variable "connections" {
     kind       = optional(string, null)
   }))
   default     = {}
-  description = "(Optional) Map of Bot service connections to create. Key is arbitrary, value includes properties and optional name/location/tags/sku/kind."
+  description = <<DESCRIPTION
+(Optional) Map of Bot Service connections to create. The map key is arbitrary.
+
+- `name` - (Optional) The connection name. Defaults to the map key.
+- `etag` - (Optional) The entity tag of the connection.
+- `properties` - (Required) The connection setting properties, such as `clientId`, `clientSecret`, `serviceProviderId`, `scopes`, and `parameters`.
+- `location` - (Optional) The connection location. Defaults to the module `location`.
+- `tags` - (Deprecated) Ignored. The Bot Service API always returns the parent bot's tags when a connection is read, so per-connection tags cannot be managed. Connections inherit the tags set through the module-level `tags` variable. This field is retained for backwards compatibility and will be removed in a future breaking release.
+- `sku` - (Optional) The SKU name of the connection.
+- `kind` - (Optional) The kind of the connection. Defaults to the module `kind`.
+DESCRIPTION
   nullable    = false
 }
 
