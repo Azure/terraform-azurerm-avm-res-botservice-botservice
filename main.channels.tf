@@ -25,5 +25,5 @@ resource "azapi_resource" "channels" {
   body                      = local.channel_bodies[each.key]
   response_export_values    = ["id", "name", "type", "properties", "sku"]
   schema_validation_enabled = var.schema_validation_enabled
-  tags                      = each.value.tags
+  tags                      = var.tags
 }
