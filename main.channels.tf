@@ -27,6 +27,7 @@ resource "azapi_resource" "channels" {
   schema_validation_enabled = var.schema_validation_enabled
   tags                      = var.tags
 
+  # The channel API does not return channel tags on read; avoid perpetual tag drift.
   lifecycle {
     ignore_changes = [tags]
   }
