@@ -14,5 +14,8 @@ resource "azapi_resource" "connections" {
   )
   response_export_values    = ["id", "name", "type", "properties", "sku"]
   schema_validation_enabled = var.schema_validation_enabled
-  tags                      = each.value.tags
+  # A GET on Microsoft.BotService/botServices/connections always returns the parent
+  # bot's tags, discarding any tags written to the connection itself. Tracking
+  # var.tags is therefore the only value that can converge against the read-back.
+  tags = var.tags
 }

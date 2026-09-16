@@ -50,7 +50,7 @@ resource "azapi_resource" "private_endpoint_managed_dns" {
   }
   ignore_missing_property   = true
   schema_validation_enabled = false
-  tags                      = each.value.tags
+  tags                      = var.tags
 }
 
 # The PE resource when we are managing **not** the private_dns_zone_group block
@@ -94,7 +94,7 @@ resource "azapi_resource" "private_endpoint_unmanaged_dns" {
   }
   ignore_missing_property   = true
   schema_validation_enabled = false
-  tags                      = each.value.tags
+  tags                      = var.tags
 
   lifecycle {
     ignore_changes = [body.properties.privateDnsZoneGroups]

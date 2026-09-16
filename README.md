@@ -118,7 +118,15 @@ Default: `null`
 
 ### <a name="input_connections"></a> [connections](#input\_connections)
 
-Description: (Optional) Map of Bot service connections to create. Key is arbitrary, value includes properties and optional name/location/tags/sku/kind.
+Description: (Optional) Map of Bot Service connections to create. The map key is arbitrary.
+
+- `name` - (Optional) The connection name. Defaults to the map key.
+- `etag` - (Optional) The entity tag of the connection.
+- `properties` - (Required) The connection setting properties, such as `clientId`, `clientSecret`, `serviceProviderId`, `scopes`, and `parameters`.
+- `location` - (Optional) The connection location. Defaults to the module `location`.
+- `tags` - (Deprecated) Ignored. The Bot Service API always returns the parent bot's tags when a connection is read, so per-connection tags cannot be managed. Connections inherit the tags set through the module-level `tags` variable. This field is retained for backwards compatibility and will be removed in a future breaking release.
+- `sku` - (Optional) The SKU name of the connection.
+- `kind` - (Optional) The kind of the connection. Defaults to the module `kind`.
 
 Type:
 
@@ -411,6 +419,7 @@ Type:
 map(object({
     name = optional(string, null)
     role_assignments = optional(map(object({
+      name                                   = optional(string, null)
       role_definition_id_or_name             = string
       principal_id                           = string
       description                            = optional(string, null)
@@ -421,11 +430,13 @@ map(object({
       principal_type                         = optional(string, null)
     })), {})
     lock = optional(object({
-      kind = string
-      name = optional(string, null)
+      kind  = string
+      name  = optional(string, null)
+      notes = optional(string, null)
     }), null)
     tags                                    = optional(map(string), null)
     subnet_resource_id                      = string
+    subresource_name                        = optional(string, null)
     private_dns_zone_group_name             = optional(string, "default")
     private_dns_zone_resource_ids           = optional(set(string), [])
     application_security_group_associations = optional(map(string), {})
@@ -436,6 +447,7 @@ map(object({
     ip_configurations = optional(map(object({
       name               = string
       private_ip_address = string
+      member_name        = optional(string)
     })), {})
   }))
 ```

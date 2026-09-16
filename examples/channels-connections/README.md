@@ -130,6 +130,11 @@ module "bot" {
   microsoft_app_type        = "UserAssignedMSI"
   schema_validation_enabled = false
   sku                       = "S1"
+  tags = {
+    application = "app"
+    environment = "dev"
+    owner       = "team"
+  }
 }
 ```
 
