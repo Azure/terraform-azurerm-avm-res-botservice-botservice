@@ -95,6 +95,7 @@ module "bot_with_module_pe" {
   microsoft_app_id        = azurerm_user_assigned_identity.uai_module_pe.client_id
   name                    = "bot-module-pe-${random_pet.pet.id}"
   resource_group_name     = azurerm_resource_group.rg.name
+  enable_telemetry        = false
   endpoint                = "https://example.com/api/messages"
   microsoft_app_msi_id    = azurerm_user_assigned_identity.uai_module_pe.id
   microsoft_app_tenant_id = azurerm_user_assigned_identity.uai_module_pe.tenant_id
@@ -130,6 +131,7 @@ module "bot_with_manual_pe" {
   microsoft_app_id              = azurerm_user_assigned_identity.uai_manual_pe.client_id
   name                          = "bot-manual-pe-${random_pet.pet.id}"
   resource_group_name           = azurerm_resource_group.rg.name
+  enable_telemetry              = false
   endpoint                      = "https://example.com/api/messages"
   microsoft_app_msi_id          = azurerm_user_assigned_identity.uai_manual_pe.id
   microsoft_app_tenant_id       = azurerm_user_assigned_identity.uai_manual_pe.tenant_id
@@ -172,6 +174,7 @@ module "bot_with_approval" {
   microsoft_app_id              = azurerm_user_assigned_identity.uai_approval.client_id
   name                          = "bot-approval-${random_pet.pet.id}"
   resource_group_name           = azurerm_resource_group.rg.name
+  enable_telemetry              = false
   endpoint                      = "https://example.com/api/messages"
   microsoft_app_msi_id          = azurerm_user_assigned_identity.uai_approval.id
   microsoft_app_tenant_id       = azurerm_user_assigned_identity.uai_approval.tenant_id
@@ -215,6 +218,7 @@ module "bot_with_nsp" {
   microsoft_app_id        = azurerm_user_assigned_identity.uai_nsp.client_id
   name                    = "bot-nsp-${random_pet.pet.id}"
   resource_group_name     = azurerm_resource_group.rg.name
+  enable_telemetry        = false
   endpoint                = "https://example.com/api/messages"
   microsoft_app_msi_id    = azurerm_user_assigned_identity.uai_nsp.id
   microsoft_app_tenant_id = azurerm_user_assigned_identity.uai_nsp.tenant_id
