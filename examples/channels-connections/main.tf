@@ -117,7 +117,7 @@ module "bot" {
       }
     }
   }
-  enable_telemetry          = false
+  enable_telemetry          = var.enable_telemetry
   endpoint                  = "https://example.com/api/messages"
   microsoft_app_msi_id      = azurerm_user_assigned_identity.uai.id
   microsoft_app_tenant_id   = azurerm_user_assigned_identity.uai.tenant_id

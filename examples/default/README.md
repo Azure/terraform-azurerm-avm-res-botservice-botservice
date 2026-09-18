@@ -52,7 +52,7 @@ module "bot" {
   microsoft_app_id          = azurerm_user_assigned_identity.uai.client_id
   name                      = "bot-${random_pet.pet.id}"
   resource_group_name       = azurerm_resource_group.rg.name
-  enable_telemetry          = false
+  enable_telemetry          = var.enable_telemetry
   endpoint                  = "https://example.com/api/messages"
   microsoft_app_msi_id      = azurerm_user_assigned_identity.uai.id
   microsoft_app_tenant_id   = azurerm_user_assigned_identity.uai.tenant_id
@@ -100,7 +100,7 @@ If it is set to false, then no telemetry will be collected.
 
 Type: `bool`
 
-Default: `true`
+Default: `false`
 
 ## Outputs
 
