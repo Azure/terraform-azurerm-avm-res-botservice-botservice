@@ -12,6 +12,10 @@ resource "azapi_resource" "connections" {
     each.value.sku != null ? { sku = { name = each.value.sku } } : {},
     each.value.etag != null ? { etag = each.value.etag } : {}
   )
+  # Azure may reorder key/value parameters on read; match them by key, not list index.
+  list_unique_id_property = {
+    "properties.parameters" = "key"
+  }
   response_export_values    = ["id", "name", "type", "properties", "sku"]
   schema_validation_enabled = var.schema_validation_enabled
   # A GET on Microsoft.BotService/botServices/connections always returns the parent
