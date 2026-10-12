@@ -8,7 +8,7 @@ terraform {
     }
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = ">= 4.57, < 6.0"
+      version = ">= 4.57, < 5.0"
     }
     random = {
       source  = "hashicorp/random"
@@ -82,9 +82,10 @@ resource "azurerm_private_dns_zone" "bot" {
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "bot" {
-  name                = "vnet-link-${random_pet.pet.id}"
-  virtual_network_id  = azurerm_virtual_network.vnet.id
-  private_dns_zone_id = azurerm_private_dns_zone.bot.id
+  name                  = "vnet-link-${random_pet.pet.id}"
+  private_dns_zone_name = azurerm_private_dns_zone.bot.name
+  resource_group_name   = azurerm_resource_group.rg.name
+  virtual_network_id    = azurerm_virtual_network.vnet.id
 }
 
 # Bot Service with Module-Managed Private Endpoint

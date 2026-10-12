@@ -4,6 +4,8 @@
 
 This deploys the module with channels and connections sub-resources configured.
 
+This example requires AzureRM 4.x. Downgrading existing state created with AzureRM 5.x is not supported by this example; use a fresh deployment.
+
 ```hcl
 terraform {
   required_version = "~> 1.5"
@@ -15,7 +17,7 @@ terraform {
     }
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = ">= 4.57, < 6.0"
+      version = ">= 4.57, < 5.0"
     }
     random = {
       source  = "hashicorp/random"
@@ -148,7 +150,7 @@ The following requirements are needed by this module:
 
 - <a name="requirement_azapi"></a> [azapi](#requirement\_azapi) (~> 2.7)
 
-- <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (>= 4.57, < 6.0)
+- <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (>= 4.57, < 5.0)
 
 - <a name="requirement_random"></a> [random](#requirement\_random) (~> 3.7)
 
