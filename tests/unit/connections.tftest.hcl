@@ -7,12 +7,11 @@ mock_provider "azapi" {
 
   mock_data "azapi_client_config" {
     defaults = {
-      subscription_id = "00000000-0000-0000-0000-000000000003"
+      subscription_id          = "00000000-0000-0000-0000-000000000003"
+      subscription_resource_id = "/subscriptions/00000000-0000-0000-0000-000000000003"
     }
   }
 }
-mock_provider "modtm" {}
-mock_provider "random" {}
 
 run "matches_connection_parameters_by_key" {
   command = apply
