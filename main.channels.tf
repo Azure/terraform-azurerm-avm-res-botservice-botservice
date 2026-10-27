@@ -18,7 +18,7 @@ locals {
 resource "azapi_resource" "channels" {
   for_each = var.channels
 
-  location                  = coalesce(each.value.location, var.location)
+  location                  = coalesce(each.value.location, local.bot_service_location)
   name                      = coalesce(each.value.name, each.value.channel_name)
   parent_id                 = azapi_resource.this.id
   type                      = "Microsoft.BotService/botServices/channels@2023-09-15-preview"

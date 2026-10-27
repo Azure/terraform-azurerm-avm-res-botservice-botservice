@@ -1,7 +1,7 @@
 data "azapi_client_config" "this" {}
 
 resource "azapi_resource" "this" {
-  location  = var.location
+  location  = local.bot_service_location
   name      = var.name
   parent_id = "/subscriptions/${data.azapi_client_config.this.subscription_id}/resourceGroups/${var.resource_group_name}"
   type      = "Microsoft.BotService/botServices@2023-09-15-preview"

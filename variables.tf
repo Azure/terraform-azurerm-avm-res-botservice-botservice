@@ -2,6 +2,11 @@ variable "location" {
   type        = string
   description = "(Required) Specifies the supported Azure location where the resource exists. Changing this forces a new resource to be created."
   nullable    = false
+
+  validation {
+    condition     = lower(var.location) != "global" || !var.enable_telemetry
+    error_message = "`location` cannot be `global` while telemetry is enabled. Set `enable_telemetry = false` to use the global Bot Service location."
+  }
 }
 
 variable "microsoft_app_id" {

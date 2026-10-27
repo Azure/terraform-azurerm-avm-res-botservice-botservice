@@ -92,7 +92,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "bot" {
 module "bot_with_module_pe" {
   source = "../../"
 
-  location                = "global"
+  location                = azurerm_resource_group.rg.location
   microsoft_app_id        = azurerm_user_assigned_identity.uai_module_pe.client_id
   name                    = "bot-module-pe-${random_pet.pet.id}"
   resource_group_name     = azurerm_resource_group.rg.name
@@ -128,7 +128,7 @@ module "bot_with_module_pe" {
 module "bot_with_manual_pe" {
   source = "../../"
 
-  location                      = "global"
+  location                      = azurerm_resource_group.rg.location
   microsoft_app_id              = azurerm_user_assigned_identity.uai_manual_pe.client_id
   name                          = "bot-manual-pe-${random_pet.pet.id}"
   resource_group_name           = azurerm_resource_group.rg.name
@@ -171,7 +171,7 @@ resource "azurerm_private_endpoint" "manual" {
 module "bot_with_approval" {
   source = "../../"
 
-  location                      = "global"
+  location                      = azurerm_resource_group.rg.location
   microsoft_app_id              = azurerm_user_assigned_identity.uai_approval.client_id
   name                          = "bot-approval-${random_pet.pet.id}"
   resource_group_name           = azurerm_resource_group.rg.name
@@ -215,7 +215,7 @@ resource "azurerm_private_endpoint" "external" {
 module "bot_with_nsp" {
   source = "../../"
 
-  location                = "global"
+  location                = azurerm_resource_group.rg.location
   microsoft_app_id        = azurerm_user_assigned_identity.uai_nsp.client_id
   name                    = "bot-nsp-${random_pet.pet.id}"
   resource_group_name     = azurerm_resource_group.rg.name
