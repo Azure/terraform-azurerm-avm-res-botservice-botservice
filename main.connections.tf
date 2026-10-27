@@ -1,7 +1,7 @@
 resource "azapi_resource" "connections" {
   for_each = var.connections
 
-  location  = coalesce(each.value.location, var.location)
+  location  = coalesce(each.value.location, local.bot_service_location)
   name      = coalesce(each.value.name, each.key)
   parent_id = azapi_resource.this.id
   type      = "Microsoft.BotService/botServices/connections@2023-09-15-preview"

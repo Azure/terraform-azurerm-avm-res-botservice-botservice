@@ -88,7 +88,7 @@ resource "random_password" "conn_secret" {
 module "bot" {
   source = "../../"
 
-  location            = "global"
+  location            = azurerm_resource_group.rg.location
   microsoft_app_id    = azurerm_user_assigned_identity.uai.client_id
   name                = "bot-${random_pet.pet.id}"
   resource_group_name = azurerm_resource_group.rg.name
